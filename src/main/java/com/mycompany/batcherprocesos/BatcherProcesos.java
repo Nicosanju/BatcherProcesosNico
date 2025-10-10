@@ -23,6 +23,10 @@ public class BatcherProcesos {
         scheduler.addToReady(j2);
         scheduler.addToReady(j3);
         
+        scheduler.addToRunning(j1);
+        
+        scheduler.addToWaiting(j3);
+        
         scheduler.printStatus();
     }
 }
