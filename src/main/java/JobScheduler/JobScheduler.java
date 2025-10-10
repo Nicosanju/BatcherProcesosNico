@@ -17,7 +17,7 @@ public class JobScheduler {
     private Queue<Job> readyQueue;
     private Queue<Job> waitingQueue;
     private Map<String,Job> runningJobs;
-public JobScheduler(int totalCpuCores) {
+public JobScheduler() {
         
         this.readyQueue = new LinkedList<>();
         this.waitingQueue = new LinkedList<>();
@@ -25,7 +25,7 @@ public JobScheduler(int totalCpuCores) {
     }    
 public void addToWaiting(Job job){
 
-        getWaitingQueue().add(job);
+    getWaitingQueue().add(job);
     job.setState(Job.JobState.WAITING);
 }
 public void addToReady(Job job){
@@ -42,8 +42,6 @@ public Job getNextReady(){
     
 }
 public void printStatus(){
-
-    
         System.out.println("=== ESTADO DEL SCHEDULER ===");
         System.out.println("READY: " + readyQueue.size());
         System.out.println("WAITING: " + waitingQueue.size());

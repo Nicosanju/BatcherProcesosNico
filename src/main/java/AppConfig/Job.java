@@ -136,7 +136,7 @@ public class Job {
      * @param state the state to set
      */
     public void setState(JobState state) {
-        this.setState(state);
+        this.state= state;
     }
 
     /**
@@ -163,12 +163,9 @@ public class Job {
     /**
      * @param endTime the endTime to set
      */
-    public void setEndTime(int endTime) {
-        this.setEndTime(endTime);
+    public void setEndTime(Instant endTime) {
+        this.endTime= endTime;
     }
-
-    
-
     /**
      * @return the startTime
      */
@@ -186,7 +183,5 @@ public class Job {
     /**
      * @param endTime the endTime to set
      */
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
-    }
+    
 }
