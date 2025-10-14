@@ -180,8 +180,5 @@ public class Job {
         this.startTime = startTime;
     }
 
-    /**
-     * @param endTime the endTime to set
-     */
-    
+   
 }

@@ -9,8 +9,6 @@ import java.util.List;
 
 public class BatcherProcesos {
 
-    
-    
     public static void main(String[] args) {
         
         JobScheduler scheduler = new JobScheduler();
