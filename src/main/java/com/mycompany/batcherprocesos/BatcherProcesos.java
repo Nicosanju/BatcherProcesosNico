@@ -26,5 +26,9 @@ public class BatcherProcesos {
         scheduler.addToWaiting(j3);
         
         scheduler.printStatus();
+    
+    
+    
+    
     }
 }
