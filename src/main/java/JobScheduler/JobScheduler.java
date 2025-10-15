@@ -36,11 +36,11 @@ public void addToRunning(Job job){
         getRunningJobs().put(job.getId(), job);
     job.setState(Job.JobState.RUNNING);
 }
-public Job getNextReady(){
+/*public Job getNextReady(){
     
         return readyQueue.poll();//Saca el job y devuelve el primer elemento
     
-}
+}*/
 public void printStatus(){
         System.out.println("=== ESTADO DEL SCHEDULER ===");
         System.out.println("READY: " + readyQueue.size());
