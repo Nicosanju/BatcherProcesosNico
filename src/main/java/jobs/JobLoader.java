@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
 
-
+ 
 public class JobLoader {
     
     public static List<Job> loadJobs(String path) throws IOException{

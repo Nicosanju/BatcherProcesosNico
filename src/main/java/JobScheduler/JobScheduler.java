@@ -14,15 +14,22 @@ import java.util.*;
  * @author Nico
  */
 public class JobScheduler {
+    private List<Job> allJobs; 
     private Queue<Job> readyQueue;
     private Queue<Job> waitingQueue;
     private Map<String,Job> runningJobs;
 public JobScheduler() {
-        
+        allJobs = new ArrayList<>();
         this.readyQueue = new LinkedList<>();
         this.waitingQueue = new LinkedList<>();
         this.runningJobs = new HashMap<>();
     }    
+
+public void addJob(Job job){
+
+job.setState(Job.JobState.NEW);
+allJobs.add(job);
+}
 public void addToWaiting(Job job){
 
     getWaitingQueue().add(job);
@@ -61,6 +68,27 @@ public void printStatus(){
     
     public Map<String,Job> getRunningJobs() {
         return runningJobs;
+    }
+
+    /**
+     * @return the allJobs
+     */
+    public List<Job> getAllJobs() {
+        return allJobs;
+    }
+
+    /**
+     * @param allJobs the allJobs to set
+     */
+    public void setAllJobs(List<Job> allJobs) {
+        this.allJobs = allJobs;
+    }
+    public int getJobCount(){
+    
+    
+        return allJobs.size();
+    
+    
     }
 
 

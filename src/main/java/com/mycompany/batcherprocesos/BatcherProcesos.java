@@ -3,7 +3,7 @@ package com.mycompany.batcherprocesos;
 
 import AppConfig.Job;
 import JobScheduler.JobScheduler;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import jobs.JobLoader;
 
@@ -14,7 +14,7 @@ public class BatcherProcesos {
         
         JobScheduler scheduler = new JobScheduler();
         
-        Job j1 = new Job("Compilar Proyecto", 2, 4, 2048, 2000);
+        /*Job j1 = new Job("Compilar Proyecto", 2, 4, 2048, 2000);
         Job j2 = new Job("Analizar Datos", 3, 6, 4096, 3000);
         Job j3 = new Job("Backup", 1, 2, 1024, 1000);
 
@@ -24,27 +24,36 @@ public class BatcherProcesos {
 
         scheduler.addToRunning(j1);
         
-        scheduler.addToWaiting(j3);
+        scheduler.addToWaiting(j3);*/
         
         
         try{
             
             List<Job> jobs = JobLoader.loadJobs("/jobs.yaml");
             
-            System.out.println("Jobs cargados: " +jobs.size());
+            System.out.println("Jobs leidos: " +jobs.size());
             
             
             for(Job job : jobs){
-            
+               
+                
+                if(job.getState()== Job.JobState.READY){
                 scheduler.addToReady(job);
+                scheduler.addJob(job);
+                }
+                else{
+                scheduler.addToRunning(job);
                 System.out.printf(" - %s (Prioridad %d, %d cores, %d MB, %d ms)%n",
                 job.getName(), job.getPriority(), job.getCpuCores(), job.getMemMb(), job.getDurationMs());           
-            }
+                }
+                }
             scheduler.printStatus();
+            System.out.println(" Los archivos guardados en la lista fueron "+ scheduler.getJobCount()+ " jobs");
             
-        }catch(Exception e){
+            
+        }catch(IOException e){
             System.err.println("Error al leer el archivo"+ e.getMessage());
-            e.printStackTrace();
+            
             
     }
 }
