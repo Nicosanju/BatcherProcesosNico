@@ -30,7 +30,7 @@ public JobScheduler() {
         this.runningJobs = new HashMap<>();
     }
 
-public void scheduleJobs(){
+public void scheduleJobsFCFS(){
     
     Iterator<Job> it = readyQueue.iterator();
     
@@ -40,6 +40,11 @@ public void scheduleJobs(){
         if(job.getCpuCores() <=(totalCPUCores-usedCPUCores)&& 
             job.getMemMb()<=(totalMemMb-usedMemMb)){
             addToRunning(job);
+            usedCPUCores+= job.getCpuCores();
+            usedMemMb += job.getMemMb();
+            job.setStartTime(Instant.now());
+            
+            
             it.remove();
             System.out.println("Job ejecutándose "+ job.getName());
         }else{

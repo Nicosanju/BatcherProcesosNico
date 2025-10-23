@@ -50,10 +50,10 @@ public class BatcherProcesos {
             scheduler.printStatus();
             System.out.println(" Los archivos guardados en la lista fueron "+ scheduler.getJobCount()+ " jobs");
             
-            scheduler.scheduleJobs();
+            scheduler.scheduleJobsFCFS();
             
             scheduler.printStatus();
-            System.out.println("Jobs guardados en la lista " + scheduler.getJobCount());
+            System.out.println("Jobs guardados en la lista: " + scheduler.getJobCount());
             
         }catch(IOException e){
             System.err.println("Error al leer el archivo"+ e.getMessage());
