@@ -35,9 +35,9 @@ public class BatcherProcesos {
             
             
             for(Job job : jobs){
-               
                 
-                if(job.getState()== Job.JobState.READY){
+                job.setState(Job.JobState.READY);
+                if(job.getState()== Job.JobState.READY){    
                 scheduler.addToReady(job);
                 scheduler.addJob(job);
                 }
@@ -50,6 +50,10 @@ public class BatcherProcesos {
             scheduler.printStatus();
             System.out.println(" Los archivos guardados en la lista fueron "+ scheduler.getJobCount()+ " jobs");
             
+            scheduler.scheduleJobs();
+            
+            scheduler.printStatus();
+            System.out.println("Jobs guardados en la lista " + scheduler.getJobCount());
             
         }catch(IOException e){
             System.err.println("Error al leer el archivo"+ e.getMessage());

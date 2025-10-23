@@ -18,13 +18,37 @@ public class JobScheduler {
     private Queue<Job> readyQueue;
     private Queue<Job> waitingQueue;
     private Map<String,Job> runningJobs;
+    private int totalCPUCores= 4;
+    private int totalMemMb = 2048;
+    private int usedCPUCores= 0;
+    private int usedMemMb= 0;
+    
 public JobScheduler() {
         allJobs = new ArrayList<>();
         this.readyQueue = new LinkedList<>();
         this.waitingQueue = new LinkedList<>();
         this.runningJobs = new HashMap<>();
-    }    
+    }
 
+public void scheduleJobs(){
+    
+    Iterator<Job> it = readyQueue.iterator();
+    
+    while(it.hasNext()){
+        Job job = it.next();
+        
+        if(job.getCpuCores() <=(totalCPUCores-usedCPUCores)&& 
+            job.getMemMb()<=(totalMemMb-usedMemMb)){
+            addToRunning(job);
+            it.remove();
+            System.out.println("Job ejecutándose "+ job.getName());
+        }else{
+            System.out.println("job esperando recursos" + job.getName());
+            addToWaiting(job);
+            it.remove();
+        }
+    }
+}
 public void addJob(Job job){
 
 job.setState(Job.JobState.NEW);
@@ -55,6 +79,8 @@ public void printStatus(){
         System.out.println("RUNNING: " + runningJobs.size());
         System.out.println("=============================");
     }
+
+
    
     public Queue<Job> getReadyQueue() {
         return readyQueue;
