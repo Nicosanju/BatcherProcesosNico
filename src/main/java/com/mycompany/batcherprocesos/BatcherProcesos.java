@@ -40,11 +40,15 @@ public class BatcherProcesos {
                 if(job.getState()== Job.JobState.READY){    
                 scheduler.addToReady(job);
                 scheduler.addJob(job);
+                System.out.println(job.getName()+ ": (Prioridad " + job.getPriority() +"," + job.getCpuCores()+" cores," + job.getMemMb() +" MB,"+ job.getDurationMs() + " ms" + ")." );                scheduler.setQuantumMs(1500);  // por ejemplo, 250 ms
+                scheduler.scheduleJobsRR();
+                
+                
+                
                 }
                 else{
                 scheduler.addToRunning(job);
-                System.out.printf(" - %s (Prioridad %d, %d cores, %d MB, %d ms)%n",
-                job.getName(), job.getPriority(), job.getCpuCores(), job.getMemMb(), job.getDurationMs());           
+                System.out.println(job.getName()+ ": (Prioridad " + job.getPriority() +"," + job.getCpuCores()+" cores," + job.getMemMb() +" MB,"+ job.getDurationMs() + " ms" + ")." );                scheduler.setQuantumMs(1500);  // por ejemplo, 250 ms
                 }
                 }
             scheduler.printStatus();
