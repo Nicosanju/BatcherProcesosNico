@@ -12,8 +12,8 @@ import java.util.UUID;
  * @author Nico
  */
 public class Job {
-
-    private final String id;
+    
+    private int id = 1;
     private String name;
     private int priority;
     private int cpuCores;
@@ -37,7 +37,7 @@ public class Job {
 
 }
  public Job(String name, int priority, int cpuCores, int memMb, long durationMs) {
-        this.id = UUID.randomUUID().toString(); // Genera un ID único automáticamente
+        this.id = id++; 
         this.name = name;
         this.priority = priority;
         this.cpuCores = cpuCores;
@@ -46,10 +46,16 @@ public class Job {
         this.state = JobState.NEW;
         this.arrivalTime = Instant.now();
     }    
-    
-    public String getId() {
+
+    public int getId() {
         return id;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
     /**
      * @return the name
      */

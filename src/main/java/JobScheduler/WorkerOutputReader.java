@@ -4,10 +4,41 @@
  */
 package JobScheduler;
 
+import AppConfig.Job;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 /**
  *
  * @author Nico
  */
-public class WorkerOutputReader {
-    
+public class WorkerOutputReader implements Runnable {
+
+    private Process process;
+    private Job job;
+
+    public WorkerOutputReader(Process process, Job job) {
+        this.process = process;
+        this.job = job;
+    }
+
+    @Override
+    public void run() {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                if (linea.startsWith("[HB]")) {
+
+                    System.out.println("Heartbeat recibido de " + job.getName() + ":" + linea);
+                }
+                if(linea.startsWith("[END]")){
+                    System.out.println("Job completado: "+  job.getName());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error leyendo el stdout del proceso");
+        }
+    }
+
 }

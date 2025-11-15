@@ -78,7 +78,7 @@ public class JobScheduler {
     }
 
     public void addToRunning(Job job) {
-        getRunningJobs().put(job.getId(), job);
+        getRunningJobs().put(String.valueOf( job.getId()), job);
         job.setState(Job.JobState.RUNNING);
     }
 
@@ -114,7 +114,7 @@ public class JobScheduler {
         String cp = System.getProperty("java.class.path");
         ProcessBuilder pb = new ProcessBuilder("java",
                 "-cp",cp,"com.mycompany.batcherprocesos.WorkerMain",
-                job.getId(),String.valueOf(job.getDurationMs()),
+                String.valueOf(job.getId()) ,String.valueOf(job.getDurationMs()),
                 String.valueOf(job.getCpuCores()),String.valueOf(job.getMemMb())                        
         );
             
@@ -125,9 +125,13 @@ public class JobScheduler {
         job.setState(Job.JobState.RUNNING);
         job.setStartTime(Instant.now());
         
-        runningJobs.put(job.getId(), job);
+        runningJobs.put(String.valueOf(job.getId()),job);
         
         System.out.println("Proceso lanzado. PID: "+ hijo.pid() + ": "+ job.getName());
+        
+         // Hilo para leer stdout y heartbeats
+        Thread outReader = new Thread(new WorkerOutputReader(hijo, job));
+        outReader.start();
     }
 
     public Queue<Job> getReadyQueue() {

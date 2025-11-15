@@ -9,17 +9,23 @@ package com.mycompany.batcherprocesos;
  * @author Nico
  */
 public class WorkerMain {
-    public static void main(String[]args)throws Exception{
-    
-    String jobId = args[0];
-    long duration = Long.parseLong(args[1]);
-    int cores = Integer.parseInt(args[2]);
-    int memMb = Integer.parseInt(args[3]);
-    
-        System.out.println("Worker iniciado para job " + jobId +" con duracion de " + duration + " ms");
-    
-        Thread.sleep(duration);
+
+    public static void main(String[] args) throws Exception {
+
+        int jobId =Integer.parseInt(args[0]) ;
+        long duration = Long.parseLong(args[1]);
+
+        long tiempo = 0;
+        long heartbeat = 1000;
+
+        System.out.println("[START]" + jobId);
+        while (tiempo < duration) {
+            Thread.sleep(heartbeat);
+            tiempo += heartbeat;
+            System.out.println("[HB] " + jobId + " tiempoEspera " + tiempo + " s");
+        }
         
-        System.out.println("Worker finalizado para el job " + jobId);
+
+        System.out.println("[END] Job " + jobId);
     }
 }
