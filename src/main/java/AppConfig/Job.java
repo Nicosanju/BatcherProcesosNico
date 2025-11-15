@@ -23,10 +23,9 @@ public class Job {
     private Instant arrivalTime;
     private Instant startTime;
     private Instant endTime;
+    
 
-    /**
-     * @return the id
-     */
+    
     public enum JobState{
         
         NEW,

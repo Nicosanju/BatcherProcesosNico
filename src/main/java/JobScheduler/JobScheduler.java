@@ -113,8 +113,7 @@ public class JobScheduler {
     private void startWorker(Job job) throws Exception {
         String cp = System.getProperty("java.class.path");
         ProcessBuilder pb = new ProcessBuilder("java",
-                "-cp",cp,
-                "com.mycompany.batcherprocesos.WorkerMain",
+                "-cp",cp,"com.mycompany.batcherprocesos.WorkerMain",
                 job.getId(),String.valueOf(job.getDurationMs()),
                 String.valueOf(job.getCpuCores()),String.valueOf(job.getMemMb())                        
         );
