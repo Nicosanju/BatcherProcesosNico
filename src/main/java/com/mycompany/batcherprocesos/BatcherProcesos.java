@@ -10,9 +10,12 @@ import jobs.JobLoader;
 
 public class BatcherProcesos {
 
-    public static void main(String[] args) {
-        
+    public static void main(String[] args)throws Exception {
+        String cp = System.getProperty("java.class.path");
         JobScheduler scheduler = new JobScheduler();
+        ProcessBuilder pb = new ProcessBuilder("java","-cp",cp," com.mycompany.batcherprocesos.WorkerMain");
+        pb.inheritIO();
+        pb.start();
         
         /*Job j1 = new Job("Compilar Proyecto", 2, 4, 2048, 2000);
         Job j2 = new Job("Analizar Datos", 3, 6, 4096, 3000);
