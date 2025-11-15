@@ -12,20 +12,21 @@ public class WorkerMain {
 
     public static void main(String[] args) throws Exception {
 
-        int jobId =Integer.parseInt(args[0]) ;
-        long duration = Long.parseLong(args[1]);
+        String jobId =(args[0]) ;
+        String jobName = args[1];
+        long duration = Long.parseLong(args[2]);
 
         long tiempo = 0;
         long heartbeat = 1000;
 
-        System.out.println("[START]" + jobId);
+        System.out.println("[START] " + jobName);
         while (tiempo < duration) {
             Thread.sleep(heartbeat);
             tiempo += heartbeat;
-            System.out.println("[HB] " + jobId + " tiempoEspera " + tiempo + " s");
+            System.out.println("[HB] " + jobName + " tiempoEspera " + tiempo/1000 + " s");
         }
         
 
-        System.out.println("[END] Job " + jobId);
+        System.out.println("[END] Job " + jobName);
     }
 }

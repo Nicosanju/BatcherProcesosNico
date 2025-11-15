@@ -12,8 +12,8 @@ import java.util.UUID;
  * @author Nico
  */
 public class Job {
-    
-    private int id = 1;
+    private String id ;
+    private static int nextId = 1;
     private String name;
     private int priority;
     private int cpuCores;
@@ -37,7 +37,7 @@ public class Job {
 
 }
  public Job(String name, int priority, int cpuCores, int memMb, long durationMs) {
-        this.id = id++; 
+        this.id = "Job-" + nextId++; 
         this.name = name;
         this.priority = priority;
         this.cpuCores = cpuCores;
@@ -47,11 +47,11 @@ public class Job {
         this.arrivalTime = Instant.now();
     }    
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
     

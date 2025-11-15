@@ -5,6 +5,9 @@
 package JobScheduler;
 
 import AppConfig.Job;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
@@ -46,7 +49,7 @@ public class JobScheduler {
             } catch (Exception ex) {
                 Logger.getLogger(JobScheduler.class.getName()).log(Level.SEVERE, null, ex);
             }
-        it.remove();
+            it.remove();
         }
     }
 
@@ -78,7 +81,7 @@ public class JobScheduler {
     }
 
     public void addToRunning(Job job) {
-        getRunningJobs().put(String.valueOf( job.getId()), job);
+        getRunningJobs().put(String.valueOf(job.getId()), job);
         job.setState(Job.JobState.RUNNING);
     }
 
@@ -109,29 +112,40 @@ public class JobScheduler {
         }
         System.out.println("El proceso se inicio correctamente");
     }
-    
+
     private void startWorker(Job job) throws Exception {
         String cp = System.getProperty("java.class.path");
         ProcessBuilder pb = new ProcessBuilder("java",
-                "-cp",cp,"com.mycompany.batcherprocesos.WorkerMain",
-                String.valueOf(job.getId()) ,String.valueOf(job.getDurationMs()),
-                String.valueOf(job.getCpuCores()),String.valueOf(job.getMemMb())                        
+                "-cp", cp, "com.mycompany.batcherprocesos.WorkerMain",
+                job.getId(),job.getName(), String.valueOf(job.getDurationMs()),
+                String.valueOf(job.getCpuCores()), String.valueOf(job.getMemMb())
         );
-            
-        
-           Process  hijo = pb.start();
-         
-        
+
+        Process hijo = pb.start();
+
         job.setState(Job.JobState.RUNNING);
         job.setStartTime(Instant.now());
-        
-        runningJobs.put(String.valueOf(job.getId()),job);
-        
-        System.out.println("Proceso lanzado. PID: "+ hijo.pid() + ": "+ job.getName());
-        
-         // Hilo para leer stdout y heartbeats
-        Thread outReader = new Thread(new WorkerOutputReader(hijo, job));
-        outReader.start();
+        runningJobs.put(String.valueOf(job.getId()), job);
+
+        System.out.println("Proceso lanzado. PID: " + hijo.pid() + ": " + job.getName());
+
+        // Hilo para leer la salida estándar en tiempo real
+        new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(hijo.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Mostrar la línea en consola
+                    System.out.println("Worker [" + job.getId() + "]: " + line);
+
+                    // Detectar heartbeats
+                    if (line.contains("[HB]")) {
+                        System.out.println("Heartbeat recibido de " + job.getName() + ": " + line);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public Queue<Job> getReadyQueue() {
