@@ -1,0 +1,27 @@
+jobs:
+  - id: "job1"
+    name: "Compilar Proyecto"
+    priority: 2
+    resources:
+      cpuCores: 4
+      memMb: "2048MB"
+    workload:
+      durationMs: 2000
+
+  - id: "job2"
+    name: "Analizar Datos"
+    priority: 3
+    resources:
+      cpuCores: 6
+      memMb: "4096MB"
+    workload:
+      durationMs: 3000
+
+  - id: "job3"
+    name: "Backup"
+    priority: 1
+    resources:
+      cpuCores: 2
+      memMb: "1024MB"
+    workload:
+      durationMs: 1000
