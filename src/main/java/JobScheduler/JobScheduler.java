@@ -117,7 +117,7 @@ public class JobScheduler {
         String cp = System.getProperty("java.class.path");
         ProcessBuilder pb = new ProcessBuilder("java",
                 "-cp", cp, "com.mycompany.batcherprocesos.WorkerMain",
-                job.getId(),job.getName(), String.valueOf(job.getDurationMs()),
+                job.getId(), job.getName(), String.valueOf(job.getDurationMs()),
                 String.valueOf(job.getCpuCores()), String.valueOf(job.getMemMb())
         );
 
@@ -137,6 +137,11 @@ public class JobScheduler {
                     // Mostrar la línea en consola
                     System.out.println("Worker [" + job.getId() + "]: " + line);
 
+                    if (line.startsWith("[END]")) {
+                        completeJob(job, 0);
+                        moveWaitingToReady();
+                    }
+
                     // Detectar heartbeats
                     if (line.contains("[HB]")) {
                         System.out.println("Heartbeat recibido de " + job.getName() + ": " + line);
@@ -147,6 +152,60 @@ public class JobScheduler {
             }
         }).start();
     }
+
+    private void releaseResources(Job job) {
+
+        usedCPUCores -= job.getCpuCores();
+        usedMemMb -= job.getMemMb();
+
+        System.out.println("Recursos liberados para job " + job.getName()
+                + ". CPU libre: " + (totalCPUCores - usedCPUCores)
+                + ", Memoria libre: " + (totalMemMb - usedMemMb) + " MB");
+    }
+
+    private void completeJob(Job job, int exitCode) {
+
+        releaseResources(job);
+        job.setEndTime(Instant.now());
+
+        if (exitCode == 0) {
+            job.setState(Job.JobState.DONE);
+        } else {
+            job.setState(Job.JobState.FAILED);
+        }
+
+        runningJobs.remove(job.getId());
+
+        System.out.println("Job " + job.getName() + " finalizado. Estado: " + job.getState() + "  " + job.getEndTime());
+
+        //De aqui para abajo hacemos la revisión en ready
+        
+    }
+    
+    private void moveWaitingToReady() {
+    Iterator<Job> it = waitingQueue.iterator();
+
+    while (it.hasNext()) {
+        Job job = it.next();
+
+        // Verifica si hay recursos suficientes
+        if (job.getCpuCores() <= (totalCPUCores - usedCPUCores) &&
+            job.getMemMb() <= (totalMemMb - usedMemMb)) {
+
+            // Reservar recursos
+            usedCPUCores += job.getCpuCores();
+            usedMemMb += job.getMemMb();
+
+            // Pasar a READY
+            addToReady(job);
+
+            // Quitar de WAITING
+            it.remove();
+
+            System.out.println("Job " + job.getName() + " movido de WAITING a READY");
+        }
+    }
+}
 
     public Queue<Job> getReadyQueue() {
         return readyQueue;
