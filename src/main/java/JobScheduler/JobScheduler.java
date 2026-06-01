@@ -38,18 +38,16 @@ public class JobScheduler {
 
     public void scheduleJobsFCFS() {
 
-        Iterator<Job> it = readyQueue.iterator();
+        while (!readyQueue.isEmpty()) {
 
-        while (it.hasNext()) {
-            Job job = it.next();
+            Job job = readyQueue.poll();
 
-            // No dejamos arrancar más de un job a la vez si tu CPU es de 1 core
             try {
-                startWorker(job);   // ⬅️ AQUÍ SE LANZA EL PROCESO REAL
+                startWorker(job);
             } catch (Exception ex) {
-                Logger.getLogger(JobScheduler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(JobScheduler.class.getName())
+                        .log(Level.SEVERE, null, ex);
             }
-            it.remove();
         }
     }
 
@@ -85,11 +83,7 @@ public class JobScheduler {
         job.setState(Job.JobState.RUNNING);
     }
 
-    /*public Job getNextReady(){
     
-        return readyQueue.poll();//Saca el job y devuelve el primer elemento
-    
-}*/
     public void printStatus() {
         System.out.println("=== ESTADO DEL SCHEDULER ===");
         System.out.println("READY: " + readyQueue.size());
@@ -117,35 +111,135 @@ public class JobScheduler {
         String cp = System.getProperty("java.class.path");
         ProcessBuilder pb = new ProcessBuilder("java",
                 "-cp", cp, "com.mycompany.batcherprocesos.WorkerMain",
-                job.getId(),job.getName(), String.valueOf(job.getDurationMs()),
+                job.getId(), job.getName(), String.valueOf(job.getDurationMs()),
                 String.valueOf(job.getCpuCores()), String.valueOf(job.getMemMb())
         );
 
         Process hijo = pb.start();
 
-        job.setState(Job.JobState.RUNNING);
         job.setStartTime(Instant.now());
-        runningJobs.put(String.valueOf(job.getId()), job);
+
+        addToRunning(job);
+        
+        printScheduler();  
 
         System.out.println("Proceso lanzado. PID: " + hijo.pid() + ": " + job.getName());
 
-        // Hilo para leer la salida estándar en tiempo real
-        new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(hijo.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Mostrar la línea en consola
-                    System.out.println("Worker [" + job.getId() + "]: " + line);
+        try (BufferedReader reader
+                = new BufferedReader(new InputStreamReader(hijo.getInputStream()))) {
 
-                    // Detectar heartbeats
-                    if (line.contains("[HB]")) {
-                        System.out.println("Heartbeat recibido de " + job.getName() + ": " + line);
-                    }
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+
+                System.out.println("Worker [" + job.getId() + "]: " + line);
+
+                if (line.startsWith("[END]")) {
+                    completeJob(job, 0);
+                    moveWaitingToReady();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+
+                if (line.startsWith("[HB]")) {
+                    System.out.println("Heartbeat recibido de " + job.getName());
+                }
             }
-        }).start();
+        }
+
+        
+    }
+
+    private void releaseResources(Job job) {
+
+        usedCPUCores -= job.getCpuCores();
+        usedMemMb -= job.getMemMb();
+
+        System.out.println("Recursos liberados para job " + job.getName()
+                + ". CPU libre: " + (totalCPUCores - usedCPUCores)
+                + ", Memoria libre: " + (totalMemMb - usedMemMb) + " MB");
+    }
+
+    private void completeJob(Job job, int exitCode) {
+
+        releaseResources(job);
+        job.setEndTime(Instant.now());
+
+        if (exitCode == 0) {
+            job.setState(Job.JobState.DONE);
+        } else {
+            job.setState(Job.JobState.FAILED);
+        }
+
+        runningJobs.remove(String.valueOf(job.getId()));
+
+        System.out.println("Job " + job.getName() + " finalizado. Estado: " + job.getState() + "  " + job.getEndTime());
+
+        printScheduler();
+        //De aqui para abajo hacemos la revisión en ready
+    }
+
+    private void moveWaitingToReady() {
+        Iterator<Job> it = waitingQueue.iterator();
+
+        while (it.hasNext()) {
+            Job job = it.next();
+
+            // Verifica si hay recursos suficientes
+            if (job.getCpuCores() <= (totalCPUCores - usedCPUCores)
+                    && job.getMemMb() <= (totalMemMb - usedMemMb)) {
+
+                // Reservar recursos
+                usedCPUCores += job.getCpuCores();
+                usedMemMb += job.getMemMb();
+
+                // Pasar a READY
+                addToReady(job);
+
+                // Quitar de WAITING
+                it.remove();
+
+                System.out.println("Job " + job.getName() + " movido de WAITING a READY");
+            }
+        }
+    }
+
+    public void printScheduler() {
+
+        System.out.println("=================================");
+        System.out.println("READY:");
+
+        for (Job job : readyQueue) {
+            System.out.println(" - " + job.getName()+ ". Ms:"+ quantumMs);
+        }
+
+        System.out.println("\nWAITING:");
+
+        for (Job job : waitingQueue) {
+            System.out.println(" - " + job.getName() + ". Ms:"+ quantumMs);
+        }
+
+        System.out.println("\nRUNNING:");
+
+        for (Job job : runningJobs.values()) {
+            System.out.println(" - " + job.getName()+ ". Ms:"+ quantumMs);
+        }
+
+        System.out.println("\nDONE:");
+
+        for (Job job : allJobs) {
+            if (job.getState() == Job.JobState.DONE) {
+                System.out.println(" - " + job.getName()+ ". Ms:"+ quantumMs);
+            }
+        }
+
+        System.out.println("\nFAILED:");
+
+        for (Job job : allJobs) {
+            if (job.getState() == Job.JobState.FAILED) {
+                System.out.println(" - " + job.getName()+ ". Ms:"+ quantumMs);
+            }
+        }
+
+        System.out.println("=================================");
     }
 
     public Queue<Job> getReadyQueue() {

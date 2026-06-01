@@ -45,6 +45,7 @@ public class Job {
         this.durationMs = durationMs;
         this.state = JobState.NEW;
         this.arrivalTime = Instant.now();
+        this.endTime = Instant.now();
     }    
 
     public String getId() {

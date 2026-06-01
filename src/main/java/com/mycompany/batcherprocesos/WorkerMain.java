@@ -4,12 +4,17 @@
  */
 package com.mycompany.batcherprocesos;
 
+
 /**
  *
  * @author Nico
  */
+
+
 public class WorkerMain {
 
+    
+    
     public static void main(String[] args) throws Exception {
 
         String jobId =(args[0]) ;

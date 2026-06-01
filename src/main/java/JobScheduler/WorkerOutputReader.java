@@ -12,33 +12,32 @@ import java.io.InputStreamReader;
  *
  * @author Nico
  */
-public class WorkerOutputReader implements Runnable {
+public class WorkerOutputReader  {
 
     private Process process;
     private Job job;
+    private JobScheduler scheduler;
 
     public WorkerOutputReader(Process process, Job job) {
         this.process = process;
         this.job = job;
     }
 
-    @Override
-    public void run() {
+    public void readOutput() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String linea;
             while ((linea = br.readLine()) != null) {
                 if (linea.startsWith("[HB]")) {
-
-                    System.out.println("Heartbeat recibido de " + job.getName() + ":" + linea);
+                    System.out.println("Heartbeat recibido de " + job.getName() + ": " + linea);
                 }
-                if(linea.startsWith("[END]")){
-                    System.out.println("Job completado: "+  job.getName());
+                if (linea.startsWith("[END]")) {
+                    System.out.println("Job completado: " + job.getName());
                 }
             }
-
         } catch (Exception e) {
             System.out.println("Error leyendo el stdout del proceso");
         }
     }
-
 }
+
+
