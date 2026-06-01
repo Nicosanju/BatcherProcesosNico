@@ -16,6 +16,7 @@ public class WorkerOutputReader  {
 
     private Process process;
     private Job job;
+    private JobScheduler scheduler;
 
     public WorkerOutputReader(Process process, Job job) {
         this.process = process;

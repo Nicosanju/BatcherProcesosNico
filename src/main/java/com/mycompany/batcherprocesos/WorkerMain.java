@@ -4,7 +4,6 @@
  */
 package com.mycompany.batcherprocesos;
 
-import AppConfig.Job;
 
 /**
  *
