@@ -1,0 +1,6 @@
+com/mycompany/batcherprocesos/BatcherProcesos.class
+jobs/JobLoader.class
+AppConfig/Job$JobState.class
+JobScheduler/JobScheduler.class
+AppConfig/Job.class
+com/mycompany/batcherprocesos/WorkerMain.class
